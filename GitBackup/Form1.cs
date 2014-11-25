@@ -11,44 +11,95 @@ using System.IO;
 
 namespace GitBackup
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         private const string GIT_PATH = @"C:\Users\Thomas\AppData\Local\GitHub\PortableGit_ed44d00daa128db527396557813e7b68709ed0e2\bin\";
         private const string DIR = @"C:\Users\Thomas\Documents\GitHub\Test";
 
-        public Form1()
+        List<Repository> repos = new List<Repository>();
+
+        public bool Showing
+        {
+            get { return Visible; }
+            set {
+                ShowInTaskbar = value;
+                Visible = value;
+            }
+        }
+
+        public MainForm()
         {
             InitializeComponent();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            execute("config credential.helper store");
-            string status = execute("status");
+            Showing = false;
+            repos.Add(new Repository("test"));
+            this.listBoxFolders.DataSource = repos;
+            this.listBoxFolders.DisplayMember = "Name";
+            this.folderBrowserDialog.SelectedPath = @"C:\Users\Thomas\Documents\GitHub";
+        }
+
+        private void backup()
+        {
+            tryExecute("config credential.helper store");
+
+            string status = tryExecute("status");
             string[] lines = status.Split(new char[] { '\n' });
-            if (lines.Length < 4 || !lines[0].StartsWith("On branch ") || !lines[3].StartsWith("Changes not staged"))
+            if (lines.Length < 4 || !lines[0].StartsWith("On branch ")) return;
+            string originalBranch = lines[0].Substring(10);
+
+            if (originalBranch.Contains("-backup-"))
             {
-            }
-            else
-            {
-                string originalBranch = lines[0].Substring(10);
-                string hash = execute("rev-parse HEAD").Substring(0, 8);
-                string branch = originalBranch + "-backup-" + hash;
-                string error;
-                string create = execute("checkout " + branch);
-                if (create.StartsWith("error"))
+                try
                 {
-                    error = execute("checkout -b " + branch);
+                    originalBranch = originalBranch.Substring(0, originalBranch.IndexOf("-backup-"));
+                    execute("reset " + originalBranch);
+                    execute("checkout " + originalBranch);
                 }
-                error = execute("reset origin/" + branch);
-                error = execute("add -A");
-                error = execute("commit -m \"Autosave " + DateTime.Now.ToString() + "\"");
-                error = execute("push --set-upstream origin " + branch);
-                error = execute("reset " + originalBranch);
-                error = execute("checkout " + originalBranch);
+                catch (GitException) { return; }
+                backup();
+                return;
             }
 
-            Application.Exit();
+            if (!lines[3].StartsWith("Changes not staged")) return;
+
+            try
+            {
+                string hash = execute("rev-parse HEAD").Substring(0, 8);
+                string branch = originalBranch + "-backup-" + hash;
+                try
+                {
+                    string create = execute("checkout " + branch);
+                }
+                catch (GitException)
+                {
+                    execute("checkout -b " + branch);
+                }
+                tryExecute("reset origin/" + branch);
+                execute("add -A");
+                execute("commit -m \"Autosave " + DateTime.Now.ToString() + "\"");
+                execute("push --set-upstream origin " + branch);
+            }
+            catch { }
+            finally
+            {
+                execute("reset " + originalBranch);
+                execute("checkout " + originalBranch);
+            } 
+        }
+
+        private string tryExecute(string command)
+        {
+            try
+            {
+                return execute(command);
+            }
+            catch (GitException)
+            {
+                return "";
+            }
         }
 
         private string execute(string command)
@@ -62,9 +113,57 @@ namespace GitBackup
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
             p.Start();
-            string output = p.StandardOutput.ReadToEnd();
-            if (output.Length == 0) output = p.StandardError.ReadToEnd();
-            return output;
+            string message = p.StandardOutput.ReadToEnd();
+            string error = p.StandardError.ReadToEnd();
+            if (message.Length == 0 && error.Length > 0) throw new GitException(error);
+            return message; 
         }
+
+        private class GitException : Exception
+        {
+            public GitException(string message) : base(message) { }
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Showing = !Showing;
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (Showing && e.CloseReason == CloseReason.UserClosing)
+            {
+                Showing = false;
+                e.Cancel = true;
+            }
+        }
+
+        private void buttonAddFolder_Click(object sender, EventArgs e)
+        {
+            if (this.folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string path = this.folderBrowserDialog.SelectedPath;
+                if (!Directory.Exists(path + "\\.git"))
+                {
+                    MessageBox.Show("This is not a git repository");
+                    return;
+                }
+                repos.Add(new Repository(this.folderBrowserDialog.SelectedPath));
+                
+            }
+        }
+
+        //private struct GitMessage
+        //{
+        //    public readonly string message, error;
+
+        //    public bool HasError { get { return error.Length > 0; } }
+
+        //    public GitMessage(string message, string error)
+        //    {
+        //        this.message = message;
+        //        this.error = error;
+        //    }
+        //}
     }
 }
