@@ -16,7 +16,9 @@ namespace GitBackup
         private const string GIT_PATH = @"C:\Users\Thomas\AppData\Local\GitHub\PortableGit_ed44d00daa128db527396557813e7b68709ed0e2\bin\";
         private const string DIR = @"C:\Users\Thomas\Documents\GitHub\Test";
 
-        BindingList<Repository> repos = new BindingList<Repository>();
+        private BindingList<Repository> repos = new BindingList<Repository>();
+
+        private Repository currentRepo;
 
         public bool Showing
         {
@@ -35,7 +37,7 @@ namespace GitBackup
         private void Form1_Load(object sender, EventArgs e)
         {
             Showing = false;
-            repos.Add(new Repository("test"));
+            repos.Add(new Repository(@"C:\Users\Thomas\Documents\GitHub\Test\"));
             this.listBoxFolders.DataSource = repos;
             this.listBoxFolders.DisplayMember = "Name";
             this.folderBrowserDialog.SelectedPath = @"C:\Users\Thomas\Documents\GitHub";
@@ -151,6 +153,11 @@ namespace GitBackup
                 repos.Add(new Repository(this.folderBrowserDialog.SelectedPath));
                 
             }
+        }
+
+        private void listBoxFolders_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
 
         //private struct GitMessage

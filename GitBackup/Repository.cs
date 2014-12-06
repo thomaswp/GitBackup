@@ -59,6 +59,9 @@ namespace GitBackup
         public class SettingsData
         {
             public string Name { get; set; }
+            public bool Active { get; set; }
+            public int Interval { get; set; }
+            public List<String> ignoredBranches { get; set; }
         }
     }
 }
