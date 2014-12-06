@@ -16,7 +16,7 @@ namespace GitBackup
         private const string GIT_PATH = @"C:\Users\Thomas\AppData\Local\GitHub\PortableGit_ed44d00daa128db527396557813e7b68709ed0e2\bin\";
         private const string DIR = @"C:\Users\Thomas\Documents\GitHub\Test";
 
-        List<Repository> repos = new List<Repository>();
+        BindingList<Repository> repos = new BindingList<Repository>();
 
         public bool Showing
         {
