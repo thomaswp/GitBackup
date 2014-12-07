@@ -20,10 +20,12 @@ namespace GitBackup
 
         public string Name { get { return settings.Name; } }
 
+        public readonly Git Git;
 
         public Repository(string path)
         {
             if (!path.EndsWith("\\")) path += "\\";
+            Git = new Git(path);
             this.Path = path;
             string settingsPath = path + SETTINGS_FILE;
             if (File.Exists(settingsPath))
@@ -61,7 +63,15 @@ namespace GitBackup
             public string Name { get; set; }
             public bool Active { get; set; }
             public int Interval { get; set; }
-            public List<String> ignoredBranches { get; set; }
+            public List<String> IgnoredBranches { get; set; }
+
+            public SettingsData()
+            {
+                Name = "";
+                Active = true;
+                Interval = 5;
+                IgnoredBranches = new List<string>();
+            }
         }
     }
 }
