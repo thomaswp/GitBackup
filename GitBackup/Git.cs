@@ -3,12 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.IO;
 
 namespace GitBackup
 {
     public class Git
     {
-        private const string GIT_PATH = @"C:\Users\Thomas\AppData\Local\GitHub\PortableGit_ed44d00daa128db527396557813e7b68709ed0e2\bin\";
+        public static string GitPath { get; set; }
+
+        static Git()
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string github = appData + "\\GitHub";
+            if (Directory.Exists(github))
+            {
+                foreach (string folder in Directory.EnumerateDirectories(github))
+                {
+                    string dirName = Path.GetFileName(folder);
+                    if (dirName.StartsWith("PortableGit"))
+                    {
+                        string git = folder + "\\bin\\";
+                        if (File.Exists(git + "git.exe"))
+                        {
+                            GitPath = git;
+                        }
+                    }
+                }
+            }
+        }
 
         private string dir;
 
@@ -81,7 +103,7 @@ namespace GitBackup
         public string execute(string command)
         {
             Process p = new Process();
-            p.StartInfo.FileName = GIT_PATH + "git.exe";
+            p.StartInfo.FileName = GitPath + "git.exe";
             p.StartInfo.Arguments = command;
             p.StartInfo.WorkingDirectory = dir;
             p.StartInfo.RedirectStandardOutput = true;
