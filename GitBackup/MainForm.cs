@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Diagnostics;
 using System.IO;
+using System.Resources;
 
 namespace GitBackup
 {
@@ -35,10 +36,38 @@ namespace GitBackup
         private void Form1_Load(object sender, EventArgs e)
         {
             Showing = false;
-            repos.Add(new Repository(@"C:\Users\Thomas\Documents\GitHub\Test\"));
+
             this.listBoxFolders.DataSource = repos;
             this.listBoxFolders.DisplayMember = "Name";
-            this.folderBrowserDialog.SelectedPath = @"C:\Users\Thomas\Documents\GitHub";
+            string github = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\GitHub";
+            if (Directory.Exists(github))
+            {
+                this.folderBrowserDialog.SelectedPath = github;
+            }
+        }
+
+        private void MainForm_Shown(object sender, EventArgs e)
+        {
+            if (Properties.Settings.Default.GitPath.Length == 0)
+            {
+                if (!Git.FindGitPath())
+                {
+                    MessageBox.Show("Please locate your git executable");
+                    setGitPath();
+                }
+            }
+            else
+            {
+                Git.GitPath = Properties.Settings.Default.GitPath;
+            }
+
+            repos.Clear();
+            foreach (string path in Properties.Settings.Default.Repositories)
+            {
+                repos.Add(new Repository(path));
+            }
+            this.listBoxFolders.ClearSelected();
+            if (this.listBoxFolders.Items.Count > 0) this.listBoxFolders.SelectedIndex = 0;
         }
 
         private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -96,6 +125,7 @@ namespace GitBackup
             this.textBoxName.Text = currentRepo.Settings.Name;
             string[] branches = currentRepo.Git.execute("branch").Split('\n');
             this.checkedListBoxBranches.Items.Clear();
+            this.textBoxPath.Text = currentRepo.Path;
             int index = 0;
             foreach (string branch in branches)
             {
@@ -129,8 +159,39 @@ namespace GitBackup
         private void buttonOk_Click(object sender, EventArgs e)
         {
             set();
-            foreach (Repository repo in repos) repo.Save();
+            if (Git.GitPath != null) Properties.Settings.Default.GitPath = Git.GitPath;
+            Properties.Settings.Default.Repositories = new System.Collections.Specialized.StringCollection();
+            foreach (Repository repo in repos)
+            {
+                Properties.Settings.Default.Repositories.Add(repo.Path);
+                repo.Save();
+            }
+            Properties.Settings.Default.Save();
             this.Close();
+        }
+
+        private void buttonGitPath_Click(object sender, EventArgs e)
+        {
+            setGitPath();
+        }
+
+        private void setGitPath()
+        {
+            if (Git.GitPath != null)
+            {
+                this.openFileDialogGit.InitialDirectory = Git.GitPath;
+            }
+            if (this.openFileDialogGit.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                String path = this.openFileDialogGit.FileName;
+                path = path.Substring(0, path.Length - 7);
+                if (!Directory.Exists(path) || !File.Exists(path + "\\git.exe"))
+                {
+                    MessageBox.Show("Invlaid git path!");
+                    return;
+                }
+                Git.GitPath = path;
+            }
         }
 
         //private struct GitMessage

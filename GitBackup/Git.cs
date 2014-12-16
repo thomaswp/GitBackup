@@ -11,7 +11,7 @@ namespace GitBackup
     {
         public static string GitPath { get; set; }
 
-        static Git()
+        public static bool FindGitPath()
         {
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             string github = appData + "\\GitHub";
@@ -26,10 +26,12 @@ namespace GitBackup
                         if (File.Exists(git + "git.exe"))
                         {
                             GitPath = git;
+                            return true;
                         }
                     }
                 }
             }
+            return false;
         }
 
         private string dir;
@@ -102,6 +104,7 @@ namespace GitBackup
 
         public string execute(string command)
         {
+            if (GitPath == null) return "";
             Process p = new Process();
             p.StartInfo.FileName = GitPath + "git.exe";
             p.StartInfo.Arguments = command;

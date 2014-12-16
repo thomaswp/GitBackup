@@ -47,6 +47,11 @@
             this.label2 = new System.Windows.Forms.Label();
             this.textBoxName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.buttonGitPath = new System.Windows.Forms.Button();
+            this.openFileDialogGit = new System.Windows.Forms.OpenFileDialog();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBoxPath = new System.Windows.Forms.TextBox();
+            this.buttonRelocate = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -103,6 +108,7 @@
             // 
             this.flowLayoutPanel1.Controls.Add(this.buttonCancel);
             this.flowLayoutPanel1.Controls.Add(this.buttonOk);
+            this.flowLayoutPanel1.Controls.Add(this.buttonGitPath);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(153, 416);
@@ -133,6 +139,9 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.buttonRelocate);
+            this.panel1.Controls.Add(this.textBoxPath);
+            this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.checkBoxActive);
             this.panel1.Controls.Add(this.buttonRefresh);
             this.panel1.Controls.Add(this.label3);
@@ -159,7 +168,7 @@
             // 
             // buttonRefresh
             // 
-            this.buttonRefresh.Location = new System.Drawing.Point(270, 57);
+            this.buttonRefresh.Location = new System.Drawing.Point(270, 81);
             this.buttonRefresh.Name = "buttonRefresh";
             this.buttonRefresh.Size = new System.Drawing.Size(75, 23);
             this.buttonRefresh.TabIndex = 6;
@@ -169,7 +178,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 57);
+            this.label3.Location = new System.Drawing.Point(3, 81);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(55, 13);
             this.label3.TabIndex = 5;
@@ -178,14 +187,14 @@
             // checkedListBoxBranches
             // 
             this.checkedListBoxBranches.FormattingEnabled = true;
-            this.checkedListBoxBranches.Location = new System.Drawing.Point(64, 57);
+            this.checkedListBoxBranches.Location = new System.Drawing.Point(64, 81);
             this.checkedListBoxBranches.Name = "checkedListBoxBranches";
             this.checkedListBoxBranches.Size = new System.Drawing.Size(200, 94);
             this.checkedListBoxBranches.TabIndex = 4;
             // 
             // nudInterval
             // 
-            this.nudInterval.Location = new System.Drawing.Point(71, 31);
+            this.nudInterval.Location = new System.Drawing.Point(71, 55);
             this.nudInterval.Name = "nudInterval";
             this.nudInterval.Size = new System.Drawing.Size(65, 20);
             this.nudInterval.TabIndex = 3;
@@ -193,7 +202,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 33);
+            this.label2.Location = new System.Drawing.Point(3, 57);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(62, 13);
             this.label2.TabIndex = 2;
@@ -215,6 +224,46 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Name: ";
             // 
+            // buttonGitPath
+            // 
+            this.buttonGitPath.Location = new System.Drawing.Point(114, 3);
+            this.buttonGitPath.Name = "buttonGitPath";
+            this.buttonGitPath.Size = new System.Drawing.Size(75, 23);
+            this.buttonGitPath.TabIndex = 2;
+            this.buttonGitPath.Text = "Set Git Path";
+            this.buttonGitPath.UseVisualStyleBackColor = true;
+            this.buttonGitPath.Click += new System.EventHandler(this.buttonGitPath_Click);
+            // 
+            // openFileDialogGit
+            // 
+            this.openFileDialogGit.Filter = "Git Executable|git.exe";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 32);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(32, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Path:";
+            // 
+            // textBoxPath
+            // 
+            this.textBoxPath.Enabled = false;
+            this.textBoxPath.Location = new System.Drawing.Point(50, 29);
+            this.textBoxPath.Name = "textBoxPath";
+            this.textBoxPath.Size = new System.Drawing.Size(220, 20);
+            this.textBoxPath.TabIndex = 10;
+            // 
+            // buttonRelocate
+            // 
+            this.buttonRelocate.Location = new System.Drawing.Point(283, 28);
+            this.buttonRelocate.Name = "buttonRelocate";
+            this.buttonRelocate.Size = new System.Drawing.Size(62, 21);
+            this.buttonRelocate.TabIndex = 11;
+            this.buttonRelocate.Text = "Relocate";
+            this.buttonRelocate.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AcceptButton = this.buttonOk;
@@ -227,9 +276,10 @@
             this.MinimizeBox = false;
             this.Name = "MainForm";
             this.ShowInTaskbar = false;
-            this.Text = "Form1";
+            this.Text = "GitBackup";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
@@ -258,6 +308,11 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox textBoxName;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button buttonGitPath;
+        private System.Windows.Forms.OpenFileDialog openFileDialogGit;
+        private System.Windows.Forms.Button buttonRelocate;
+        private System.Windows.Forms.TextBox textBoxPath;
+        private System.Windows.Forms.Label label4;
     }
 }
 
