@@ -38,7 +38,11 @@
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.buttonCancel = new System.Windows.Forms.Button();
             this.buttonOk = new System.Windows.Forms.Button();
+            this.buttonGitPath = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.buttonRelocate = new System.Windows.Forms.Button();
+            this.textBoxPath = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
             this.checkBoxActive = new System.Windows.Forms.CheckBox();
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -47,19 +51,23 @@
             this.label2 = new System.Windows.Forms.Label();
             this.textBoxName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.buttonGitPath = new System.Windows.Forms.Button();
             this.openFileDialogGit = new System.Windows.Forms.OpenFileDialog();
-            this.label4 = new System.Windows.Forms.Label();
-            this.textBoxPath = new System.Windows.Forms.TextBox();
-            this.buttonRelocate = new System.Windows.Forms.Button();
+            this.timer = new System.Windows.Forms.Timer(this.components);
+            this.buttonBackup = new System.Windows.Forms.Button();
+            this.buttonOpenExplorer = new System.Windows.Forms.Button();
+            this.contextMenuIcon = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.labelLastBackup = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudInterval)).BeginInit();
+            this.contextMenuIcon.SuspendLayout();
             this.SuspendLayout();
             // 
             // notifyIcon
             // 
+            this.notifyIcon.ContextMenuStrip = this.contextMenuIcon;
             this.notifyIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon.Icon")));
             this.notifyIcon.Text = "notifyIcon1";
             this.notifyIcon.Visible = true;
@@ -137,8 +145,21 @@
             this.buttonOk.UseVisualStyleBackColor = true;
             this.buttonOk.Click += new System.EventHandler(this.buttonOk_Click);
             // 
+            // buttonGitPath
+            // 
+            this.buttonGitPath.Location = new System.Drawing.Point(114, 3);
+            this.buttonGitPath.Name = "buttonGitPath";
+            this.buttonGitPath.Size = new System.Drawing.Size(75, 23);
+            this.buttonGitPath.TabIndex = 2;
+            this.buttonGitPath.Text = "Set Git Path";
+            this.buttonGitPath.UseVisualStyleBackColor = true;
+            this.buttonGitPath.Click += new System.EventHandler(this.buttonGitPath_Click);
+            // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.labelLastBackup);
+            this.panel1.Controls.Add(this.buttonOpenExplorer);
+            this.panel1.Controls.Add(this.buttonBackup);
             this.panel1.Controls.Add(this.buttonRelocate);
             this.panel1.Controls.Add(this.textBoxPath);
             this.panel1.Controls.Add(this.label4);
@@ -155,6 +176,32 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(354, 407);
             this.panel1.TabIndex = 4;
+            // 
+            // buttonRelocate
+            // 
+            this.buttonRelocate.Location = new System.Drawing.Point(283, 28);
+            this.buttonRelocate.Name = "buttonRelocate";
+            this.buttonRelocate.Size = new System.Drawing.Size(62, 21);
+            this.buttonRelocate.TabIndex = 11;
+            this.buttonRelocate.Text = "Relocate";
+            this.buttonRelocate.UseVisualStyleBackColor = true;
+            // 
+            // textBoxPath
+            // 
+            this.textBoxPath.Enabled = false;
+            this.textBoxPath.Location = new System.Drawing.Point(50, 29);
+            this.textBoxPath.Name = "textBoxPath";
+            this.textBoxPath.Size = new System.Drawing.Size(220, 20);
+            this.textBoxPath.TabIndex = 10;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(3, 32);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(32, 13);
+            this.label4.TabIndex = 9;
+            this.label4.Text = "Path:";
             // 
             // checkBoxActive
             // 
@@ -224,45 +271,57 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Name: ";
             // 
-            // buttonGitPath
-            // 
-            this.buttonGitPath.Location = new System.Drawing.Point(114, 3);
-            this.buttonGitPath.Name = "buttonGitPath";
-            this.buttonGitPath.Size = new System.Drawing.Size(75, 23);
-            this.buttonGitPath.TabIndex = 2;
-            this.buttonGitPath.Text = "Set Git Path";
-            this.buttonGitPath.UseVisualStyleBackColor = true;
-            this.buttonGitPath.Click += new System.EventHandler(this.buttonGitPath_Click);
-            // 
             // openFileDialogGit
             // 
             this.openFileDialogGit.Filter = "Git Executable|git.exe";
             // 
-            // label4
+            // timer
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(3, 32);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(32, 13);
-            this.label4.TabIndex = 9;
-            this.label4.Text = "Path:";
+            this.timer.Enabled = true;
+            this.timer.Interval = 10000;
+            this.timer.Tick += new System.EventHandler(this.timer_Tick);
             // 
-            // textBoxPath
+            // buttonBackup
             // 
-            this.textBoxPath.Enabled = false;
-            this.textBoxPath.Location = new System.Drawing.Point(50, 29);
-            this.textBoxPath.Name = "textBoxPath";
-            this.textBoxPath.Size = new System.Drawing.Size(220, 20);
-            this.textBoxPath.TabIndex = 10;
+            this.buttonBackup.Location = new System.Drawing.Point(6, 181);
+            this.buttonBackup.Name = "buttonBackup";
+            this.buttonBackup.Size = new System.Drawing.Size(95, 23);
+            this.buttonBackup.TabIndex = 12;
+            this.buttonBackup.Text = "Backup Now";
+            this.buttonBackup.UseVisualStyleBackColor = true;
+            this.buttonBackup.Click += new System.EventHandler(this.buttonBackup_Click);
             // 
-            // buttonRelocate
+            // buttonOpenExplorer
             // 
-            this.buttonRelocate.Location = new System.Drawing.Point(283, 28);
-            this.buttonRelocate.Name = "buttonRelocate";
-            this.buttonRelocate.Size = new System.Drawing.Size(62, 21);
-            this.buttonRelocate.TabIndex = 11;
-            this.buttonRelocate.Text = "Relocate";
-            this.buttonRelocate.UseVisualStyleBackColor = true;
+            this.buttonOpenExplorer.Location = new System.Drawing.Point(114, 181);
+            this.buttonOpenExplorer.Name = "buttonOpenExplorer";
+            this.buttonOpenExplorer.Size = new System.Drawing.Size(108, 23);
+            this.buttonOpenExplorer.TabIndex = 13;
+            this.buttonOpenExplorer.Text = "Open in Explorer";
+            this.buttonOpenExplorer.UseVisualStyleBackColor = true;
+            this.buttonOpenExplorer.Click += new System.EventHandler(this.buttonOpenExplorer_Click);
+            // 
+            // contextMenuIcon
+            // 
+            this.contextMenuIcon.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exitToolStripMenuItem});
+            this.contextMenuIcon.Name = "contextMenuIcon";
+            this.contextMenuIcon.Size = new System.Drawing.Size(93, 26);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(92, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // labelLastBackup
+            // 
+            this.labelLastBackup.AutoSize = true;
+            this.labelLastBackup.Location = new System.Drawing.Point(9, 207);
+            this.labelLastBackup.Name = "labelLastBackup";
+            this.labelLastBackup.Size = new System.Drawing.Size(0, 13);
+            this.labelLastBackup.TabIndex = 14;
             // 
             // MainForm
             // 
@@ -275,7 +334,6 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "MainForm";
-            this.ShowInTaskbar = false;
             this.Text = "GitBackup";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -285,6 +343,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudInterval)).EndInit();
+            this.contextMenuIcon.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -313,6 +372,12 @@
         private System.Windows.Forms.Button buttonRelocate;
         private System.Windows.Forms.TextBox textBoxPath;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Timer timer;
+        private System.Windows.Forms.Button buttonBackup;
+        private System.Windows.Forms.Button buttonOpenExplorer;
+        private System.Windows.Forms.ContextMenuStrip contextMenuIcon;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.Label labelLastBackup;
     }
 }
 
