@@ -58,6 +58,86 @@ namespace GitBackup
             }
         }
 
+        public bool CheckModified()
+        {
+            try
+            {
+                string data = JsonConvert.SerializeObject(settings);
+                string saved = File.ReadAllText(SettingsPath);
+                return data != saved;
+            }
+            catch { }
+            return true;
+        }
+
+        public bool CanBackup()
+        {
+            string status = Git.TryExecute("status");
+            string[] lines = status.Split(new char[] { '\n' });
+            if (lines.Length < 4 || !lines[0].StartsWith("On branch ")) return false;
+            string originalBranch = lines[0].Substring(10);
+            if (originalBranch.Contains("-backup-")) return false;
+            if (!lines[3].StartsWith("Changes not staged")) return false;
+
+            return true;
+        }
+
+        public bool Backup()
+        {
+            if (Git.GitPath == null) return false;
+
+            Git.TryExecute("config credential.helper store");
+
+
+            string status = Git.TryExecute("status");
+            string[] lines = status.Split(new char[] { '\n' });
+            if (lines.Length < 4 || !lines[0].StartsWith("On branch ")) return false;
+            string originalBranch = lines[0].Substring(10);
+
+            if (originalBranch.Contains("-backup-"))
+            {
+                try
+                {
+                    originalBranch = originalBranch.Substring(0, originalBranch.IndexOf("-backup-"));
+                    Git.Execute("reset " + originalBranch);
+                    Git.Execute("checkout " + originalBranch);
+                }
+                catch (GitException) { return false; }
+                return Backup();
+            }
+
+            if (!lines[3].StartsWith("Changes not staged")) return true;
+
+            try
+            {
+                string hash = Git.Execute("rev-parse HEAD").Substring(0, 8);
+                string branch = originalBranch + "-backup-" + hash;
+                try
+                {
+                    string create = Git.Execute("checkout " + branch);
+                }
+                catch (GitException)
+                {
+                    Git.Execute("checkout -b " + branch);
+                }
+                Git.TryExecute("reset origin/" + branch);
+                Git.Execute("add -A");
+                Git.Execute("commit -m \"Autosave " + DateTime.Now.ToString() + "\"");
+                Git.Execute("push --set-upstream origin " + branch);
+            }
+            catch
+            {
+                return false;
+            }
+            finally
+            {
+                Git.Execute("reset " + originalBranch);
+                Git.Execute("checkout " + originalBranch);
+            }
+
+            return true;
+        }
+
         public class SettingsData
         {
             public string Name { get; set; }
